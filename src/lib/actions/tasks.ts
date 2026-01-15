@@ -48,3 +48,20 @@ export async function updateChecklistItem(checklistId: string, items: any) {
     if (error) throw error;
     return data;
 }
+export async function createCustomTask(practiceId: string, name: string, category: string = 'Access', stage: string = 'Execution Phase') {
+    const { data, error } = await supabase
+        .from('workflow_tasks')
+        .insert({
+            practice_id: practiceId,
+            name,
+            status: 'Open',
+            category,
+            stage,
+            display_order: 99 // Put custom tasks at the bottom
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}

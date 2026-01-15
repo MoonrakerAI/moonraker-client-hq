@@ -4,7 +4,17 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export async function getPracticeHolisticData(practiceId: string) {
     const mockData = {
-        practice: { id: practiceId, name: 'Moonraker Wellness', status: 'Active', location: 'Albuquerque, NM', city_state: 'NM', tier: 'Full CORE Implementation', website: 'https://wellness.example.com' },
+        practice: {
+            id: practiceId,
+            name: 'Moonraker Wellness',
+            status: 'Active',
+            location: 'Albuquerque, NM',
+            city_state: 'NM',
+            tier: 'Full CORE Implementation',
+            website: 'https://wellness.example.com',
+            contact_name: 'Kelly Chisholm',
+            notes: 'Directories started. NOTIFY BEFORE UPDATING SPEED!'
+        },
         onboarding: { is_complete: true, msa_signed: true, leadsie_connected: true },
         tasks: [
             { id: '1', name: 'Onboarding Info & Access Audit', category: 'Access', stage: 'Pre-Kickoff', display_order: 1, status: 'Done' },

@@ -30,10 +30,14 @@ const tabs = [
     { id: 'admin', name: 'Admin/Internal', icon: Settings2 },
 ];
 
+import { createCustomTask } from '@/lib/actions/tasks';
+
 export default function PracticeDetailPage({ params }: { params: { id: string } }) {
     const [activeTab, setActiveTab] = useState('strategy');
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [newTaskName, setNewTaskName] = useState('');
+    const [isAddingTask, setIsAddingTask] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -53,6 +57,21 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
     const handleRefreshAI = async () => {
         await analyzePracticePerformance(params.id);
         await fetchData();
+    };
+
+    const handleAddTask = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newTaskName.trim()) return;
+        setIsAddingTask(true);
+        try {
+            await createCustomTask(params.id, newTaskName);
+            setNewTaskName('');
+            await fetchData();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsAddingTask(false);
+        }
     };
 
     if (loading) return (
@@ -75,20 +94,45 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                 <DatabaseAlert />
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-4xl font-bold font-heading">{data.practice.name}</h1>
-                            <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20 uppercase tracking-widest">
-                                {data.practice.status} Campaign
-                            </span>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-4xl font-bold font-heading">{data.practice.name}</h1>
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20 uppercase tracking-widest">
+                                    {data.practice.status} Campaign
+                                </span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <p className="text-slate-400 font-medium">
+                                    {data.practice.location || 'Primary Market'}: {data.practice.city_state || 'National'} • Tier: {data.practice.tier || 'Full CORE Implementation'}
+                                </p>
+                                {data.practice.contact_name && (
+                                    <p className="text-sm text-[var(--primary)] font-bold">Point of Contact: {data.practice.contact_name}</p>
+                                )}
+                            </div>
                         </div>
-                        <p className="text-slate-400 font-medium">{data.practice.location || 'Primary Market'}: {data.practice.city_state || 'National'} • Tier: {data.practice.tier || 'Full CORE Implementation'}</p>
+
+                        {data.practice.notes && (
+                            <div className="max-w-3xl p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-2">Internal Campaign Notes</h4>
+                                <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                                    {data.practice.notes}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-white/10 transition-all">
-                            Client Portal Link
-                        </button>
+                        {data.practice.campaign_link && (
+                            <a
+                                href={data.practice.campaign_link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-white/10 transition-all"
+                            >
+                                Strategy Sheet
+                            </a>
+                        )}
                         <button className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-black text-sm font-bold hover:shadow-[0_0_20px_var(--primary-glow)] transition-all">
                             Edit Practice
                         </button>
@@ -148,8 +192,29 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
             {/* Task Feed (Sidebar/Bottom Section) */}
             <div className="pt-12 border-t border-white/5">
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold font-heading">Campaign Task Feed</h2>
-                    <button className="text-sm font-bold text-[var(--primary)] hover:underline">Launch Batch Action</button>
+                    <div className="space-y-1">
+                        <h2 className="text-2xl font-bold font-heading">Campaign Task Feed</h2>
+                        <p className="text-sm text-slate-500 font-medium">Live execution status for this practice.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <form onSubmit={handleAddTask} className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                placeholder="Add custom request..."
+                                value={newTaskName}
+                                onChange={(e) => setNewTaskName(e.target.value)}
+                                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary)] transition-all min-w-[300px]"
+                            />
+                            <button
+                                type="submit"
+                                disabled={isAddingTask}
+                                className="px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-all disabled:opacity-50"
+                            >
+                                {isAddingTask ? 'Adding...' : 'Add Task'}
+                            </button>
+                        </form>
+                        <button className="text-sm font-bold text-[var(--primary)] hover:underline">Launch Batch Action</button>
+                    </div>
                 </div>
                 <TaskBoard tasks={data.tasks} isAdmin={true} />
             </div>

@@ -14,11 +14,13 @@ CREATE TABLE IF NOT EXISTS practices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     status practice_status DEFAULT 'Open',
-    start_date DATE DEFAULT CURRENT_DATE,
+    start_date TEXT, -- Changed to TEXT to accommodate various formats from CSV like "2020" or "7/11/2025"
+    contact_name TEXT,
     email TEXT,
     website TEXT,
     gbp_link TEXT,
     campaign_link TEXT,
+    notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
