@@ -1,0 +1,41 @@
+{
+  "name": "client-hq",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.90.1",
+    "@types/jsonwebtoken": "^9.0.10",
+    "framer-motion": "^12.25.0",
+    "googleapis": "^170.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.562.0",
+    "next": "14.2.35",
+    "react": "^18",
+    "react-dom": "^18",
+    "resend": "^3.5.0",
+    "stripe": "^20.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
+    "firebase-tools": "13.30.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": "20"
+  }
+}
