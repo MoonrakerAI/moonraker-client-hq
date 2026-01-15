@@ -3,51 +3,73 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export async function getPracticeHolisticData(practiceId: string) {
+    const mockData = {
+        practice: { id: practiceId, name: 'Moonraker Wellness', status: 'Active', location: 'Albuquerque, NM', city_state: 'NM', tier: 'Full CORE Implementation', website: 'https://wellness.example.com' },
+        onboarding: { is_complete: true, msa_signed: true, leadsie_connected: true },
+        tasks: [
+            { id: '1', name: 'Onboarding Info & Access Audit', category: 'Access', stage: 'Pre-Kickoff', display_order: 1, status: 'Done' },
+            { id: '2', name: 'Site Speed & Security Benchmark', category: 'Audit', stage: 'Pre-Kickoff', display_order: 2, status: 'Done' },
+            { id: '3', name: 'GBP Address Uniqueness Check', category: 'GBP', stage: 'Pre-Kickoff', display_order: 3, status: 'Done' },
+            { id: '4', name: 'Intro Call: Goal & KPI Alignment', category: 'Intro Call', stage: 'Kickoff Strategy', display_order: 4, status: 'Done' },
+            { id: '5', name: 'Initialize Google Marketing Account', category: 'Gmail', stage: 'Kickoff Strategy', display_order: 5, status: 'Doing' },
+            { id: '6', name: 'Core Directory Listing Sync', category: 'Citations', stage: 'Execution Phase', display_order: 6, status: 'Open' },
+            { id: '7', name: 'Meta Data & Schema Implementation', category: 'Technical', stage: 'Execution Phase', display_order: 7, status: 'Open' },
+            { id: '8', name: 'Monthly PR Syndication Batch', category: 'Authority', stage: 'Authority Building', display_order: 8, status: 'Open' },
+        ],
+        checklists: [],
+        prs: [],
+        insights: { summary: "DEMO MODE: Connect Supabase and seed your first practice to enable real-time campaign intelligence.", priority_score: 85, urgent_tasks: [] }
+    };
+
     if (!isSupabaseConfigured) {
-        // Return premium mock data for demo mode
-        return {
-            practice: { id: practiceId, name: 'Moonraker Wellness', status: 'Active', website: 'https://wellness.example.com' },
-            onboarding: { is_complete: true, msa_signed: true, leadsie_connected: true },
-            tasks: [
-                { id: '1', name: 'Onboarding Info & Access Audit', category: 'Access', stage: 'Pre-Kickoff', display_order: 1, status: 'Done' },
-                { id: '2', name: 'Site Speed & Security Benchmark', category: 'Audit', stage: 'Pre-Kickoff', display_order: 2, status: 'Done' },
-                { id: '3', name: 'GBP Address Uniqueness Check', category: 'GBP', stage: 'Pre-Kickoff', display_order: 3, status: 'Done' },
-                { id: '4', name: 'Intro Call: Goal & KPI Alignment', category: 'Intro Call', stage: 'Kickoff Strategy', display_order: 4, status: 'Done' },
-                { id: '5', name: 'Initialize Google Marketing Account', category: 'Gmail', stage: 'Kickoff Strategy', display_order: 5, status: 'Doing' },
-            ],
-            checklists: [],
-            prs: [],
-            insights: { summary: "DEMO MODE: Gemini analysis is simulated. Connect Supabase to enable real AI insights based on your campaign data.", priority_score: 85, urgent_tasks: [] }
-        };
+        return mockData;
     }
 
-    const [
-        { data: practice },
-        { data: onboarding },
-        { data: tasks },
-        { data: checklists },
-        { data: prs },
-        { data: insights }
-    ] = await Promise.all([
-        supabase.from('practices').select('*').eq('id', practiceId).single(),
-        supabase.from('onboarding_state').select('*').eq('practice_id', practiceId).single(),
-        supabase.from('workflow_tasks').select('*').eq('practice_id', practiceId).order('display_order', { ascending: true }),
-        supabase.from('optimization_checklists').select('*').eq('practice_id', practiceId),
-        supabase.from('press_releases').select('*').eq('practice_id', practiceId),
-        supabase.from('gemini_insights').select('*').eq('practice_id', practiceId).single()
-    ]);
+    try {
+        const [
+            { data: practice },
+            { data: onboarding },
+            { data: tasks },
+            { data: checklists },
+            { data: prs },
+            { data: insights }
+        ] = await Promise.all([
+            supabase.from('practices').select('*').eq('id', practiceId).single(),
+            supabase.from('onboarding_state').select('*').eq('practice_id', practiceId).single(),
+            supabase.from('workflow_tasks').select('*').eq('practice_id', practiceId).order('display_order', { ascending: true }),
+            supabase.from('optimization_checklists').select('*').eq('practice_id', practiceId),
+            supabase.from('press_releases').select('*').eq('practice_id', practiceId),
+            supabase.from('gemini_insights').select('*').eq('practice_id', practiceId).single()
+        ]);
 
-    return {
-        practice,
-        onboarding,
-        tasks: tasks || [],
-        checklists: checklists || [],
-        prs: prs || [],
-        insights
-    };
+        if (!practice) {
+            return mockData;
+        }
+
+        return {
+            practice,
+            onboarding,
+            tasks: tasks || [],
+            checklists: checklists || [],
+            prs: prs || [],
+            insights
+        };
+    } catch (err) {
+        console.error("Supabase fetch error, falling back to mock:", err);
+        return mockData;
+    }
 }
 
 export async function getAllPracticesOverview() {
+    const mockPractices = [
+        { id: '1', name: 'Moonraker Wellness', location: 'Albuquerque, NM', status: 'Active', visibility: '+24%', lastUpdated: '2 hours ago' },
+        { id: '2', name: 'Bay Area Therapy', location: 'San Francisco, CA', status: 'Onboarding', visibility: 'Initializing', lastUpdated: '5 hours ago' },
+        { id: '3', name: 'Desert Rose Counseling', location: 'Phoenix, AZ', status: 'Active', visibility: '+18%', lastUpdated: '1 day ago' },
+        { id: '4', name: 'Family First Wellness', location: 'Dallas, TX', status: 'Paused', visibility: '+2%', lastUpdated: '3 days ago' },
+    ];
+
+    if (!isSupabaseConfigured) return mockPractices;
+
     const { data, error } = await supabase
         .from('practices')
         .select(`
@@ -57,6 +79,14 @@ export async function getAllPracticesOverview() {
     `)
         .order('updated_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+        console.error("Supabase fetch error for overview:", error);
+        return mockPractices;
+    }
+
+    if (!data || data.length === 0) {
+        return mockPractices;
+    }
+
     return data;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Users,
@@ -14,16 +14,31 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import DatabaseAlert from '@/components/ui/DatabaseAlert';
-
-const mockPractices = [
-    { id: '1', name: 'Moonraker Wellness', location: 'Albuquerque, NM', status: 'Active', visibility: '+24%', lastUpdated: '2 hours ago' },
-    { id: '2', name: 'Bay Area Therapy', location: 'San Francisco, CA', status: 'Onboarding', visibility: 'Initializing', lastUpdated: '5 hours ago' },
-    { id: '3', name: 'Desert Rose Counseling', location: 'Phoenix, AZ', status: 'Active', visibility: '+18%', lastUpdated: '1 day ago' },
-    { id: '4', name: 'Family First Wellness', location: 'Dallas, TX', status: 'Paused', visibility: '+2%', lastUpdated: '3 days ago' },
-];
+import { getAllPracticesOverview } from '@/lib/actions/practices';
 
 export default function PracticesPage() {
     const [searchTerm, setSearchTerm] = useState('');
+    const [practices, setPractices] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getAllPracticesOverview();
+                setPractices(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const filteredPractices = practices.filter(p =>
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.location?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="space-y-10">
@@ -56,65 +71,75 @@ export default function PracticesPage() {
                 </button>
             </div>
 
-            {/* Practice Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockPractices.map((practice, i) => (
-                    <motion.div
-                        key={practice.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="group relative rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] p-8 hover:border-[var(--primary-glow)] transition-all overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 p-4">
-                            <button className="p-2 text-slate-500 hover:text-white transition-colors">
-                                <MoreVertical size={20} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="space-y-1">
-                                <Link href={`/practices/${practice.id}`}>
-                                    <h3 className="text-xl font-bold font-heading text-white group-hover:text-[var(--primary)] transition-colors cursor-pointer">{practice.name}</h3>
-                                </Link>
-                                <p className="text-sm text-slate-500 font-medium">{practice.location}</p>
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                                <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${practice.status === 'Active' ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10' :
-                                    practice.status === 'Onboarding' ? 'text-blue-400 border-blue-500/20 bg-blue-500/10' :
-                                        'text-slate-500 border-white/10'
-                                    }`}>
-                                    {practice.status}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2 text-slate-500">
-                                        <TrendingUp size={14} />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">Visibility</span>
-                                    </div>
-                                    <p className={`text-sm font-bold ${practice.visibility.startsWith('+') ? 'text-emerald-400' : 'text-slate-300'}`}>{practice.visibility}</p>
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2 text-slate-500">
-                                        <Clock size={14} />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">Modified</span>
-                                    </div>
-                                    <p className="text-sm font-bold text-slate-300">{practice.lastUpdated}</p>
-                                </div>
-                            </div>
-
-                            <Link href={`/practices/${practice.id}`} className="block">
-                                <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest group-hover:bg-[var(--primary)] group-hover:text-black transition-all flex items-center justify-center gap-2">
-                                    View Campaign <ChevronRight size={14} />
+            {/* Loading State */}
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
+                </div>
+            ) : (
+                /* Practice Grid */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredPractices.map((practice, i) => (
+                        <motion.div
+                            key={practice.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="group relative rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] p-8 hover:border-[var(--primary-glow)] transition-all overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 p-4">
+                                <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                                    <MoreVertical size={20} />
                                 </button>
-                            </Link>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-        </div>
-    );
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="space-y-1">
+                                    <Link href={`/practices/${practice.id}`}>
+                                        <h3 className="text-xl font-bold font-heading text-white group-hover:text-[var(--primary)] transition-colors cursor-pointer">{practice.name}</h3>
+                                    </Link>
+                                    <p className="text-sm text-slate-500 font-medium">{practice.location}</p>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${practice.status === 'Active' ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10' :
+                                        practice.status === 'Onboarding' ? 'text-blue-400 border-blue-500/20 bg-blue-500/10' :
+                                            'text-slate-500 border-white/10'
+                                        }`}>
+                                        {practice.status}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2 text-slate-500">
+                                            <TrendingUp size={14} />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">Visibility</span>
+                                        </div>
+                                        <p className={`text-sm font-bold ${practice.visibility?.startsWith('+') ? 'text-emerald-400' : 'text-slate-300'}`}>
+                                            {practice.visibility || 'Analyzing...'}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2 text-slate-500">
+                                            <Clock size={14} />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">Modified</span>
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-300">
+                                            {practice.lastUpdated || (practice.updated_at ? new Date(practice.updated_at).toLocaleDateString() : 'N/A')}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Link href={`/practices/${practice.id}`} className="block">
+                                    <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest group-hover:bg-[var(--primary)] group-hover:text-black transition-all flex items-center justify-center gap-2">
+                                        View Campaign <ChevronRight size={14} />
+                                    </button>
+                                </Link>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
+            );
 }
