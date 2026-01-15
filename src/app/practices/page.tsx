@@ -141,5 +141,6 @@ export default function PracticesPage() {
                     ))}
                 </div>
             )}
-            );
+        </div>
+    );
 }

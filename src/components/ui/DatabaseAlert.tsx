@@ -16,7 +16,7 @@ export default function DatabaseAlert() {
                 <div>
                     <h3 className="text-lg font-bold text-white mb-1">Database Not Connected</h3>
                     <p className="text-slate-400 text-sm max-w-xl">
-                        Moonraker is currently running in "Aesthetic Mode" with mock data.
+                        Moonraker is currently running in &quot;Aesthetic Mode&quot; with mock data.
                         To enable live campaign tracking, AI insights, and task management, please add your
                         <code className="mx-1 px-1.5 py-0.5 rounded bg-white/10 text-amber-400 text-xs">NEXT_PUBLIC_SUPABASE_URL</code>
                         and <code className="mx-1 px-1.5 py-0.5 rounded bg-white/10 text-amber-400 text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
