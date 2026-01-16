@@ -100,3 +100,16 @@ export async function getAllPracticesOverview() {
 
     return data;
 }
+export async function updatePracticeNotes(practiceId: string, notes: string) {
+    if (!isSupabaseConfigured) return { success: true, notes };
+
+    const { data, error } = await supabase
+        .from('practices')
+        .update({ notes, updated_at: new Date().toISOString() })
+        .eq('id', practiceId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}

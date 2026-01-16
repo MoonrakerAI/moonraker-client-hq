@@ -31,6 +31,7 @@ const tabs = [
 ];
 
 import { createCustomTask } from '@/lib/actions/tasks';
+import { updatePracticeNotes } from '@/lib/actions/practices';
 
 export default function PracticeDetailPage({ params }: { params: { id: string } }) {
     const [activeTab, setActiveTab] = useState('strategy');
@@ -38,11 +39,14 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
     const [loading, setLoading] = useState(true);
     const [newTaskName, setNewTaskName] = useState('');
     const [isAddingTask, setIsAddingTask] = useState(false);
+    const [notes, setNotes] = useState('');
+    const [isSavingNotes, setIsSavingNotes] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
             const holisticData = await getPracticeHolisticData(params.id);
             setData(holisticData);
+            setNotes(holisticData.practice?.notes || '');
         } catch (err) {
             console.error(err);
         } finally {
@@ -74,6 +78,18 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
         }
     };
 
+    const handleSaveNotes = async () => {
+        if (!data?.practice?.id) return;
+        setIsSavingNotes(true);
+        try {
+            await updatePracticeNotes(params.id, notes);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSavingNotes(false);
+        }
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-[400px]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
@@ -94,7 +110,7 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                 <DatabaseAlert />
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-4">
+                    <div className="space-y-4 flex-1">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <h1 className="text-4xl font-bold font-heading">{data.practice.name}</h1>
@@ -112,14 +128,19 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                             </div>
                         </div>
 
-                        {data.practice.notes && (
-                            <div className="max-w-3xl p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-2">Internal Campaign Notes</h4>
-                                <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                                    {data.practice.notes}
-                                </p>
+                        <div className="max-w-3xl space-y-2">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-amber-500">Internal Campaign Notes</h4>
+                                {isSavingNotes && <span className="text-[10px] text-slate-500 animate-pulse">Saving...</span>}
                             </div>
-                        )}
+                            <textarea
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                onBlur={handleSaveNotes}
+                                placeholder="Add notes about this practice, client requests, or strategy pivots..."
+                                className="w-full h-24 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-sm text-slate-300 leading-relaxed font-medium outline-none focus:border-amber-500/30 transition-all resize-none"
+                            />
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">
