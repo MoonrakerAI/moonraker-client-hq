@@ -69,9 +69,9 @@ export default function OnboardingContainer({ practiceId }: { practiceId?: strin
                         {currentStep === 0 && <DiscoveryStep onNext={nextStep} formData={formData} setFormData={setFormData} />}
                         {currentStep === 1 && <ProfileStep onNext={nextStep} onPrev={prevStep} formData={formData} setFormData={setFormData} />}
                         {currentStep === 2 && <MediaStep onNext={nextStep} onPrev={prevStep} practiceId={(formData as any).practiceId} />}
-                        {currentStep === 3 && <MSAStep onNext={nextStep} onPrev={prevStep} />}
-                        {currentStep === 4 && <AccessStep onNext={nextStep} onPrev={prevStep} />}
-                        {currentStep === 5 && <BookingStep onPrev={prevStep} />}
+                        {currentStep === 3 && <MSAStep onNext={nextStep} onPrev={prevStep} formData={formData} setFormData={setFormData} />}
+                        {currentStep === 4 && <AccessStep onNext={nextStep} onPrev={prevStep} formData={formData} setFormData={setFormData} />}
+                        {currentStep === 5 && <BookingStep onPrev={prevStep} formData={formData} setFormData={setFormData} />}
                     </motion.div>
                 </AnimatePresence>
             </div>

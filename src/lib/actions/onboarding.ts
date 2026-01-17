@@ -91,6 +91,16 @@ export async function initializeOnboarding(practiceId: string) {
     return { success: true };
 }
 
+export async function updateOnboardingState(practiceId: string, updates: any) {
+    const { error } = await supabase
+        .from('onboarding_state')
+        .update(updates)
+        .eq('practice_id', practiceId);
+
+    if (error) throw error;
+    return { success: true };
+}
+
 export async function sendOnboardingReminder(practiceId: string, email: string) {
     if (!resend) return { success: false, error: 'Resend not configured' };
 
