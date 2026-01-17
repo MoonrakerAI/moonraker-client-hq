@@ -1,10 +1,12 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export type TaskStatus = 'Open' | 'Doing' | 'Waiting on Client' | 'Done';
 
 export async function getPracticeTasks(practiceId: string) {
+    if (!isSupabaseConfigured) return [];
+
     const { data, error } = await supabase
         .from('workflow_tasks')
         .select('*')
@@ -16,6 +18,12 @@ export async function getPracticeTasks(practiceId: string) {
 }
 
 export async function updateTaskStatus(taskId: string, status: TaskStatus, notes?: string) {
+    if (!isSupabaseConfigured) {
+        // Return mock success for demo mode
+        console.log('[Demo Mode] Task update simulated:', { taskId, status, notes });
+        return { id: taskId, status, notes, updated_at: new Date().toISOString() };
+    }
+
     const { data, error } = await supabase
         .from('workflow_tasks')
         .update({ status, notes, updated_at: new Date().toISOString() })
@@ -28,6 +36,8 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus, notes
 }
 
 export async function getOptimizationChecklists(practiceId: string) {
+    if (!isSupabaseConfigured) return [];
+
     const { data, error } = await supabase
         .from('optimization_checklists')
         .select('*')
@@ -38,6 +48,10 @@ export async function getOptimizationChecklists(practiceId: string) {
 }
 
 export async function updateChecklistItem(checklistId: string, items: any) {
+    if (!isSupabaseConfigured) {
+        return { id: checklistId, items, updated_at: new Date().toISOString() };
+    }
+
     const { data, error } = await supabase
         .from('optimization_checklists')
         .update({ items, updated_at: new Date().toISOString() })
@@ -49,6 +63,18 @@ export async function updateChecklistItem(checklistId: string, items: any) {
     return data;
 }
 export async function createCustomTask(practiceId: string, name: string, category: string = 'Access', stage: string = 'Execution Phase') {
+    if (!isSupabaseConfigured) {
+        return {
+            id: 'demo-' + Date.now(),
+            practice_id: practiceId,
+            name,
+            status: 'Open',
+            category,
+            stage,
+            display_order: 99
+        };
+    }
+
     const { data, error } = await supabase
         .from('workflow_tasks')
         .insert({
@@ -57,7 +83,7 @@ export async function createCustomTask(practiceId: string, name: string, categor
             status: 'Open',
             category,
             stage,
-            display_order: 99 // Put custom tasks at the bottom
+            display_order: 99
         })
         .select()
         .single();
