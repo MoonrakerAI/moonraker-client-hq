@@ -114,6 +114,20 @@ export async function updatePracticeNotes(practiceId: string, notes: string) {
     return data;
 }
 
+export async function updatePracticeMetadata(practiceId: string, metadata: any) {
+    if (!isSupabaseConfigured) return { success: true, metadata };
+
+    const { data, error } = await supabase
+        .from('practices')
+        .update({ ...metadata, updated_at: new Date().toISOString() })
+        .eq('id', practiceId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export async function checkRealDataExistence() {
     if (!isSupabaseConfigured) return { status: 'Not Configured' };
 

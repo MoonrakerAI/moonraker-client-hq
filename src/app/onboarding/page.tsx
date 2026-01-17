@@ -19,7 +19,7 @@ export default function OnboardingPage() {
                     </p>
                 </motion.div>
 
-                <OnboardingContainer />
+                <OnboardingContainer practiceId={searchParams.id} />
             </div>
         </div>
     );

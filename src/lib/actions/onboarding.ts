@@ -16,30 +16,58 @@ export async function initializeOnboarding(practiceId: string) {
 
     if (stateError) throw stateError;
 
-    // 2. Seed Initial Workflow Tasks (Systematic SEO Workflow)
+    // 2. Provision Google Drive
+    let driveData = null;
+    try {
+        const { data: practice } = await supabase
+            .from('practices')
+            .select('name, email')
+            .eq('id', practiceId)
+            .single();
+
+        if (practice) {
+            const { createClientFolder } = await import('@/lib/google-drive');
+            driveData = await createClientFolder(practice.name, practice.email);
+
+            // Save drive links back to onboarding state
+            await supabase
+                .from('onboarding_state')
+                .update({
+                    google_drive_root_id: driveData.rootFolderId,
+                    google_drive_link: driveData.webViewLink,
+                    google_drive_subfolders: driveData.subfolderIds
+                })
+                .eq('practice_id', practiceId);
+        }
+    } catch (driveErr: any) {
+        console.error('Drive provisioning failed:', driveErr.message);
+        // Continue anyway so onboarding isn't blocked, but we'll want to retry or flag this
+    }
+
+    // 3. Seed Initial Workflow Tasks (Systematic SEO Workflow)
     const initialTasks = [
         // Phase 1: Pre-Kickoff Audits
-        { practice_id: practiceId, name: 'Onboarding Info & Access Audit', category: 'Access', stage: 'Pre-Kickoff', display_order: 1, status: 'Open' },
-        { practice_id: practiceId, name: 'Site Speed & Security Benchmark', category: 'Audit', stage: 'Pre-Kickoff', display_order: 2, status: 'Open' },
-        { practice_id: practiceId, name: 'GBP Address Uniqueness Check', category: 'GBP', stage: 'Pre-Kickoff', display_order: 3, status: 'Open' },
+        { practice_id: practiceId, name: 'Onboarding Info & Access Audit', category: 'Access', stage: 'Pre-Launch', display_order: 1, status: 'Open' },
+        { practice_id: practiceId, name: 'Site Speed & Security Benchmark', category: 'Audit', stage: 'Pre-Launch', display_order: 2, status: 'Open' },
+        { practice_id: practiceId, name: 'GBP Address Uniqueness Check', category: 'GBP', stage: 'Pre-Launch', display_order: 3, status: 'Open' },
 
         // Phase 2: Kickoff Strategy (Intro Call)
-        { practice_id: practiceId, name: 'Intro Call: Goal & KPI Alignment', category: 'Intro Call', stage: 'Kickoff Strategy', display_order: 4, status: 'Open' },
-        { practice_id: practiceId, name: 'Initialize Google Marketing Account', category: 'Gmail', stage: 'Kickoff Strategy', display_order: 5, status: 'Open' },
-        { practice_id: practiceId, name: 'Finalize Targeted Keywords (Q1)', category: 'Strategy', stage: 'Kickoff Strategy', display_order: 6, status: 'Open' },
-        { practice_id: practiceId, name: 'Social Brand Page Creation (FB/LI)', category: 'Access', stage: 'Kickoff Strategy', display_order: 7, status: 'Open' },
+        { practice_id: practiceId, name: 'Intro Call: Goal & KPI Alignment', category: 'Intro Call', stage: 'Launch', display_order: 4, status: 'Open' },
+        { practice_id: practiceId, name: 'Initialize Google Marketing Account', category: 'Gmail', stage: 'Launch', display_order: 5, status: 'Open' },
+        { practice_id: practiceId, name: 'Finalize Targeted Keywords (Q1)', category: 'Strategy', stage: 'Launch', display_order: 6, status: 'Open' },
+        { practice_id: practiceId, name: 'Social Brand Page Creation (FB/LI)', category: 'Access', stage: 'Launch', display_order: 7, status: 'Open' },
 
         // Phase 3: Execution Phase
-        { practice_id: practiceId, name: 'NEO Image Asset Creation', category: 'NEO', stage: 'Execution Phase', display_order: 8, status: 'Open' },
-        { practice_id: practiceId, name: 'New Service Page Development', category: 'Content', stage: 'Execution Phase', display_order: 9, status: 'Open' },
-        { practice_id: practiceId, name: 'Draft 6x GBP High-Engagement Posts', category: 'GBP', stage: 'Execution Phase', display_order: 10, status: 'Open' },
-        { practice_id: practiceId, name: 'Client Approval: Content & Creative', category: 'Content', stage: 'Execution Phase', display_order: 11, status: 'Waiting on Client' },
+        { practice_id: practiceId, name: 'NEO Image Asset Creation', category: 'NEO', stage: 'Execution', display_order: 8, status: 'Open' },
+        { practice_id: practiceId, name: 'New Service Page Development', category: 'Content', stage: 'Execution', display_order: 9, status: 'Open' },
+        { practice_id: practiceId, name: 'Draft 6x GBP High-Engagement Posts', category: 'GBP', stage: 'Execution', display_order: 10, status: 'Open' },
+        { practice_id: practiceId, name: 'Client Approval: Content & Creative', category: 'Content', stage: 'Execution', display_order: 11, status: 'Waiting on Client' },
 
         // Phase 4: Authority & Syndication
-        { practice_id: practiceId, name: 'Core Directory Listing Sync', category: 'Directories', stage: 'Authority Building', display_order: 12, status: 'Open' },
-        { practice_id: practiceId, name: 'Press Release Distribution (Q1)', category: 'PR', stage: 'Authority Building', display_order: 13, status: 'Open' },
-        { practice_id: practiceId, name: 'Social Profile Authority Building', category: 'Access', stage: 'Authority Building', display_order: 14, status: 'Open' },
-        { practice_id: practiceId, name: 'Professional Endorsement Campaign', category: 'Strategy', stage: 'Authority Building', display_order: 15, status: 'Open' },
+        { practice_id: practiceId, name: 'Core Directory Listing Sync', category: 'Directories', stage: 'Execution', display_order: 12, status: 'Open' },
+        { practice_id: practiceId, name: 'Press Release Distribution (Q1)', category: 'PR', stage: 'Execution', display_order: 13, status: 'Open' },
+        { practice_id: practiceId, name: 'Social Profile Authority Building', category: 'Access', stage: 'Execution', display_order: 14, status: 'Open' },
+        { practice_id: practiceId, name: 'Professional Endorsement Campaign', category: 'Strategy', stage: 'Execution', display_order: 15, status: 'Open' },
     ];
 
     const { error: taskError } = await supabase.from('workflow_tasks').insert(initialTasks);

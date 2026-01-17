@@ -8,6 +8,18 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleNext = async () => {
+        if (formData.practiceId) {
+            const { updatePracticeMetadata } = await import('@/lib/actions/practices');
+            await updatePracticeMetadata(formData.practiceId, {
+                name: formData.practiceName,
+                website: formData.websiteUrl,
+                notes: formData.services // Placeholder for services
+            });
+        }
+        onNext();
+    };
+
     return (
         <div className="space-y-8">
             <div className="space-y-2">
@@ -53,7 +65,7 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
 
             <div className="pt-6">
                 <button
-                    onClick={onNext}
+                    onClick={handleNext}
                     className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-slate-900 font-bold text-lg hover:shadow-[0_0_25px_var(--primary-glow)] transition-all flex items-center justify-center gap-2 group"
                 >
                     Save & Continue <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

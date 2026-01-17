@@ -2,22 +2,26 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ClipboardList, ShieldCheck, Key, Calendar, ArrowRight } from 'lucide-react';
+import { Check, ClipboardList, ShieldCheck, Key, Calendar, ArrowRight, Users, Files } from 'lucide-react';
 import DiscoveryStep from './DiscoveryStep';
+import ProfileStep from './ProfileStep';
+import MediaStep from './MediaStep';
 import MSAStep from './MSAStep';
 import AccessStep from './AccessStep';
 import BookingStep from './BookingStep';
 
 const steps = [
     { id: 'discovery', name: 'Discovery', icon: ClipboardList },
+    { id: 'profile', name: 'Profile', icon: Users },
+    { id: 'media', name: 'Media', icon: Files },
     { id: 'msa', name: 'Agreement', icon: ShieldCheck },
     { id: 'access', name: 'Platform Access', icon: Key },
     { id: 'booking', name: 'Intro Call', icon: Calendar },
 ];
 
-export default function OnboardingContainer() {
+export default function OnboardingContainer({ practiceId }: { practiceId?: string }) {
     const [currentStep, setCurrentStep] = useState(0);
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({ practiceId });
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
@@ -63,9 +67,11 @@ export default function OnboardingContainer() {
                         transition={{ duration: 0.3 }}
                     >
                         {currentStep === 0 && <DiscoveryStep onNext={nextStep} formData={formData} setFormData={setFormData} />}
-                        {currentStep === 1 && <MSAStep onNext={nextStep} onPrev={prevStep} />}
-                        {currentStep === 2 && <AccessStep onNext={nextStep} onPrev={prevStep} />}
-                        {currentStep === 3 && <BookingStep onPrev={prevStep} />}
+                        {currentStep === 1 && <ProfileStep onNext={nextStep} onPrev={prevStep} formData={formData} setFormData={setFormData} />}
+                        {currentStep === 2 && <MediaStep onNext={nextStep} onPrev={prevStep} practiceId={(formData as any).practiceId} />}
+                        {currentStep === 3 && <MSAStep onNext={nextStep} onPrev={prevStep} />}
+                        {currentStep === 4 && <AccessStep onNext={nextStep} onPrev={prevStep} />}
+                        {currentStep === 5 && <BookingStep onPrev={prevStep} />}
                     </motion.div>
                 </AnimatePresence>
             </div>
