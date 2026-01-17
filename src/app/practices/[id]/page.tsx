@@ -133,12 +133,45 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                                 </span>
                             </div>
                             <div className="flex flex-col gap-1">
-                                <p className="text-slate-400 font-medium">
-                                    {data.practice.location || 'Primary Market'}: {data.practice.city_state || 'National'} • Tier: {data.practice.tier || 'Full CORE Implementation'}
-                                </p>
-                                {data.practice.contact_name && (
-                                    <p className="text-sm text-[var(--primary)] font-bold">Point of Contact: {data.practice.contact_name}</p>
-                                )}
+                                <div className="text-sm font-bold flex flex-wrap items-center gap-x-2">
+                                    {(() => {
+                                        const items = [];
+                                        if (data.practice.contact_name) {
+                                            items.push(<span key="name" className="text-white/90">{data.practice.contact_name}</span>);
+                                        }
+                                        if (data.practice.email) {
+                                            items.push(
+                                                <a key="email" href={`mailto:${data.practice.email}`} className="text-[var(--primary)] hover:underline transition-all">
+                                                    {data.practice.email}
+                                                </a>
+                                            );
+                                        }
+                                        if (data.practice.contact_phone) {
+                                            items.push(
+                                                <a key="phone" href={`tel:${data.practice.contact_phone}`} className="text-[var(--primary)] hover:underline transition-all">
+                                                    {data.practice.contact_phone}
+                                                </a>
+                                            );
+                                        }
+                                        if (data.practice.website) {
+                                            const url = data.practice.website.startsWith('http') ? data.practice.website : `https://${data.practice.website}`;
+                                            items.push(
+                                                <a key="web" href={url} target="_blank" rel="noreferrer" className="text-[var(--primary)] hover:underline transition-all">
+                                                    {data.practice.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                                                </a>
+                                            );
+                                        }
+
+                                        if (items.length === 0) return <span className="text-slate-500 font-medium italic">No contact info provided</span>;
+
+                                        return items.map((item, index) => (
+                                            <React.Fragment key={index}>
+                                                {item}
+                                                {index < items.length - 1 && <span className="text-slate-600 font-normal">|</span>}
+                                            </React.Fragment>
+                                        ));
+                                    })()}
+                                </div>
                             </div>
                         </div>
 
