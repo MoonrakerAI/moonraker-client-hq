@@ -113,3 +113,62 @@ export async function updatePracticeNotes(practiceId: string, notes: string) {
     if (error) throw error;
     return data;
 }
+
+export async function checkRealDataExistence() {
+    if (!isSupabaseConfigured) return { status: 'Not Configured' };
+
+    const { data, count, error } = await supabase
+        .from('practices')
+        .select('*', { count: 'exact' })
+        .ilike('name', '%Albuquerque%');
+
+    return {
+        count: count || 0,
+        found: data || [],
+        error: error?.message
+    };
+}
+
+export async function createPractice(practiceData: {
+    name: string;
+    contact_name?: string;
+    email?: string;
+    website?: string;
+    notes?: string;
+}) {
+    if (!isSupabaseConfigured) {
+        // Return mock success for demo mode
+        return {
+            id: 'demo-' + Date.now(),
+            ...practiceData,
+            status: 'Open',
+            created_at: new Date().toISOString()
+        };
+    }
+
+    const { data, error } = await supabase
+        .from('practices')
+        .insert({
+            name: practiceData.name,
+            contact_name: practiceData.contact_name || null,
+            email: practiceData.email || null,
+            website: practiceData.website || null,
+            notes: practiceData.notes || null,
+            status: 'Open'
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    // Also create initial onboarding state
+    await supabase
+        .from('onboarding_state')
+        .insert({
+            practice_id: data.id,
+            is_complete: false
+        });
+
+    return data;
+}
+

@@ -63,7 +63,7 @@ export default function Dashboard() {
                 <div className="lg:col-span-2 p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-xl font-bold font-heading">Urgent Campaign Tasks</h2>
-                        <button className="text-sm font-bold text-[var(--primary)] hover:underline underline-offset-4 tracking-tight">View Full Board</button>
+                        <Link href="/tasks" className="text-sm font-bold text-[var(--primary)] hover:underline underline-offset-4 tracking-tight">View Full Board</Link>
                     </div>
 
                     <div className="space-y-4">

@@ -30,7 +30,7 @@ const tabs = [
     { id: 'admin', name: 'Admin/Internal', icon: Settings2 },
 ];
 
-import { createCustomTask } from '@/lib/actions/tasks';
+import { createCustomTask, updateTaskStatus } from '@/lib/actions/tasks';
 import { updatePracticeNotes } from '@/lib/actions/practices';
 
 export default function PracticeDetailPage({ params }: { params: { id: string } }) {
@@ -87,6 +87,20 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
             console.error(err);
         } finally {
             setIsSavingNotes(false);
+        }
+    };
+
+    const handleUpdateTask = async (taskId: string, status: any, notes?: string) => {
+        await updateTaskStatus(taskId, status, notes);
+        await fetchData();
+    };
+
+    const handleEditPractice = () => {
+        // Scroll to the notes section for editing
+        const notesSection = document.querySelector('textarea');
+        if (notesSection) {
+            notesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            notesSection.focus();
         }
     };
 
@@ -154,7 +168,10 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                                 Strategy Sheet
                             </a>
                         )}
-                        <button className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-black text-sm font-bold hover:shadow-[0_0_20px_var(--primary-glow)] transition-all">
+                        <button
+                            onClick={handleEditPractice}
+                            className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-black text-sm font-bold hover:shadow-[0_0_20px_var(--primary-glow)] transition-all"
+                        >
                             Edit Practice
                         </button>
                     </div>
@@ -234,18 +251,19 @@ export default function PracticeDetailPage({ params }: { params: { id: string } 
                                 {isAddingTask ? 'Adding...' : 'Add Task'}
                             </button>
                         </form>
-                        <button className="text-sm font-bold text-[var(--primary)] hover:underline">Launch Batch Action</button>
+                        <button
+                            title="Coming soon"
+                            className="text-sm font-bold text-[var(--primary)] opacity-50 cursor-not-allowed"
+                            disabled
+                        >
+                            Launch Batch Action
+                        </button>
                     </div>
                 </div>
-                <TaskBoard tasks={data.tasks} isAdmin={true} />
+                <TaskBoard tasks={data.tasks} isAdmin={true} onUpdateTask={handleUpdateTask} />
             </div>
         </div>
     );
 }
 
-const mockTasks: any[] = [
-    { id: '1', name: 'Initiate PR Syndication Batch', status: 'Doing', category: 'PR & Content', sop_url: '#' },
-    { id: '2', name: 'Update Homepage Schema with Local Keywords', status: 'Open', category: 'Technical SEO', sop_url: '#' },
-    { id: '3', name: 'Schedule GBP Posts for Q1', status: 'Waiting on Client', category: 'GBP Management', sop_url: '#' },
-    { id: '4', name: 'Audit MX/DKIM Records', status: 'Done', category: 'Infrastructure', sop_url: '#' },
-];
+

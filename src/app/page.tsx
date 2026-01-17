@@ -34,9 +34,11 @@ export default function Home() {
               Go to Command Center <ArrowRight size={20} />
             </button>
           </Link>
-          <button className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-lg hover:bg-white/10 transition-all">
-            See the Architecture
-          </button>
+          <Link href="/dashboard">
+            <button className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-lg hover:bg-white/10 transition-all">
+              See the Architecture
+            </button>
+          </Link>
         </div>
       </motion.div>
 
