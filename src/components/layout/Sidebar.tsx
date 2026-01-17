@@ -21,10 +21,16 @@ import Image from 'next/image';
 import { AnimatePresence } from 'framer-motion';
 import NewPracticeModal from '@/components/ui/NewPracticeModal';
 import { createPractice } from '@/lib/actions/practices';
+import { getUserProfile, UserProfile } from '@/lib/actions/auth';
 
-const navItems = [
+const adminNavItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Practices', href: '/practices', icon: Users },
+    { name: 'Task Board', href: '/tasks', icon: CheckSquare },
+];
+
+const clientNavItems = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Task Board', href: '/tasks', icon: CheckSquare },
 ];
 
@@ -33,6 +39,18 @@ export default function Sidebar() {
     const router = useRouter();
     const { isCollapsed, toggleSidebar } = useSidebar();
     const [isNewPracticeModalOpen, setIsNewPracticeModalOpen] = useState(false);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+
+    React.useEffect(() => {
+        const fetchProfile = async () => {
+            const { profile } = await getUserProfile();
+            setProfile(profile);
+        };
+        fetchProfile();
+    }, []);
+
+    const navItems = profile?.role === 'admin' ? adminNavItems : clientNavItems;
+    const isAdmin = profile?.role === 'admin';
 
     const handleCreatePractice = async (practiceData: any) => {
         const newPractice = await createPractice(practiceData);
@@ -44,10 +62,10 @@ export default function Sidebar() {
         }
     };
 
-    const handleSignOut = () => {
-        // For now, just redirect to home page
-        // TODO: Implement proper auth sign out when authentication is added
-        router.push('/');
+    const handleSignOut = async () => {
+        const { signOut } = await import('@/lib/actions/auth');
+        await signOut();
+        router.push('/login');
     };
 
     return (
@@ -135,15 +153,17 @@ export default function Sidebar() {
                 </nav>
 
                 <div className="mt-auto space-y-4">
-                    <button
-                        onClick={() => setIsNewPracticeModalOpen(true)}
-                        className={`
-                        w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-slate-900 font-bold hover:opacity-90 transition-all shadow-[0_4px_15px_var(--primary-glow)]
-                        ${isCollapsed ? 'justify-center' : ''}
-                    `}>
-                        <PlusCircle size={22} />
-                        {!isCollapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="whitespace-nowrap">New Practice</motion.span>}
-                    </button>
+                    {isAdmin && (
+                        <button
+                            onClick={() => setIsNewPracticeModalOpen(true)}
+                            className={`
+                            w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-slate-900 font-bold hover:opacity-90 transition-all shadow-[0_4px_15px_var(--primary-glow)]
+                            ${isCollapsed ? 'justify-center' : ''}
+                        `}>
+                            <PlusCircle size={22} />
+                            {!isCollapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="whitespace-nowrap">New Practice</motion.span>}
+                        </button>
+                    )}
 
                     <button
                         onClick={handleSignOut}

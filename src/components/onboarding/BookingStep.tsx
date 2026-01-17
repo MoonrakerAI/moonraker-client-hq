@@ -115,14 +115,13 @@ export default function BookingStep({ onPrev, formData, setFormData }: any) {
                             <p className="text-slate-500 text-xs mt-4 italic font-medium">Once you've booked your call, please tap Next at the bottom of the page</p>
                         </div>
 
-                        <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/40 min-h-[600px] relative">
+                        <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/40 min-h-[800px] relative shadow-2xl">
                             <iframe
                                 src="https://msg.moonraker.ai/widget/booking/ouIbhSjJ3q2VTR8U0g8z"
-                                style={{ width: '100%', minHeight: '600px', border: 'none', overflow: 'hidden' }}
-                                scrolling="no"
+                                style={{ width: '100%', minHeight: '800px', border: 'none' }}
                                 id="ouIbhSjJ3q2VTR8U0g8z_1737001179934"
+                                className="w-full"
                             />
-                            {/* Script tag is handled by the browser if injected, but for Next.js we just need the iframe most of the time. */}
                         </div>
                     </motion.div>
                 )}

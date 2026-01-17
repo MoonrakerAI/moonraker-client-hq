@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/context/SidebarContext';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
@@ -8,6 +9,16 @@ import { motion } from 'framer-motion';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const { isCollapsed } = useSidebar();
+    const pathname = usePathname();
+    const isOnboarding = pathname?.startsWith('/onboarding');
+
+    if (isOnboarding) {
+        return (
+            <main className="flex-1 bg-[var(--background)]">
+                {children}
+            </main>
+        );
+    }
 
     return (
         <>

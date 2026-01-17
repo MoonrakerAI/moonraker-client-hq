@@ -39,7 +39,7 @@ export default function ProfileStep({ onNext, onPrev, formData, setFormData }: a
     };
 
     return (
-        <div className="space-y-8 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
+        <div className="space-y-8">
             <div className="space-y-2">
                 <h2 className="text-3xl font-bold font-heading">Practice Profile</h2>
                 <p className="text-slate-400 font-medium">Complete your identity layer for campaign content and PR.</p>
@@ -150,8 +150,8 @@ export default function ProfileStep({ onNext, onPrev, formData, setFormData }: a
                                 type="button"
                                 onClick={() => togglePaymentMethod(method)}
                                 className={`px-4 py-2 rounded-lg border text-sm font-bold transition-all ${(formData.payment_methods || []).includes(method)
-                                        ? 'bg-[var(--primary)] text-black border-[var(--primary)]'
-                                        : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
+                                    ? 'bg-[var(--primary)] text-black border-[var(--primary)]'
+                                    : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
                                     }`}
                             >
                                 {method}

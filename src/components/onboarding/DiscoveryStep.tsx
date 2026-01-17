@@ -1,23 +1,54 @@
-'use client';
-
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 
 export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusMessage, setStatusMessage] = useState('');
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleNext = async () => {
-        if (formData.practiceId) {
-            const { updatePracticeMetadata } = await import('@/lib/actions/practices');
-            await updatePracticeMetadata(formData.practiceId, {
-                name: formData.practiceName,
-                website: formData.websiteUrl,
-                notes: formData.services // Placeholder for services
-            });
+        setIsLoading(true);
+        setStatusMessage('Saving practice details...');
+
+        try {
+            const { updatePracticeMetadata, createPractice } = await import('@/lib/actions/practices');
+            const { initializeOnboarding } = await import('@/lib/actions/onboarding');
+
+            let currentId = formData.practiceId;
+
+            if (currentId) {
+                await updatePracticeMetadata(currentId, {
+                    name: formData.practiceName,
+                    website: formData.websiteUrl,
+                    notes: formData.services
+                });
+            } else {
+                const newPractice = await createPractice({
+                    name: formData.practiceName,
+                    website: formData.websiteUrl,
+                    notes: formData.services
+                });
+                currentId = newPractice.id;
+                setFormData({ ...formData, practiceId: currentId });
+            }
+
+            // Initialize onboarding (provisions Drive folders, seeds tasks)
+            if (currentId) {
+                setStatusMessage('Provisioning Google Drive assets...');
+                await initializeOnboarding(currentId);
+            }
+
+            setStatusMessage('Finalizing setup...');
+            onNext();
+        } catch (error) {
+            console.error('Failed to proceed:', error);
+            setStatusMessage('Something went wrong. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
-        onNext();
     };
 
     return (
@@ -35,7 +66,8 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
                         name="practiceName"
                         value={formData.practiceName || ''}
                         onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all"
+                        disabled={isLoading}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all disabled:opacity-50"
                         placeholder="e.g. Moonraker Wellness"
                     />
                 </div>
@@ -46,7 +78,8 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
                         name="websiteUrl"
                         value={formData.websiteUrl || ''}
                         onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all"
+                        disabled={isLoading}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all disabled:opacity-50"
                         placeholder="https://..."
                     />
                 </div>
@@ -57,7 +90,8 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
                         value={formData.services || ''}
                         onChange={handleChange}
                         rows={3}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all resize-none"
+                        disabled={isLoading}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary-glow)] transition-all resize-none disabled:opacity-50"
                         placeholder="e.g. Family Counseling, Anxiety Therapy, Couples Workshops"
                     />
                 </div>
@@ -66,9 +100,23 @@ export default function DiscoveryStep({ onNext, formData, setFormData }: any) {
             <div className="pt-6">
                 <button
                     onClick={handleNext}
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-slate-900 font-bold text-lg hover:shadow-[0_0_25px_var(--primary-glow)] transition-all flex items-center justify-center gap-2 group"
+                    disabled={isLoading}
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-slate-900 font-bold text-lg hover:shadow-[0_0_25px_var(--primary-glow)] transition-all flex flex-col items-center justify-center gap-1 group disabled:opacity-80 disabled:hover:shadow-none"
                 >
-                    Save & Continue <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    <div className="flex items-center gap-2">
+                        {isLoading ? (
+                            <Loader2 size={20} className="animate-spin" />
+                        ) : (
+                            <>
+                                Save & Continue <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
+                    </div>
+                    {isLoading && (
+                        <span className="text-xs uppercase tracking-widest opacity-70 animate-pulse">
+                            {statusMessage}
+                        </span>
+                    )}
                 </button>
             </div>
         </div>

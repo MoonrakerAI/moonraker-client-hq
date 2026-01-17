@@ -4,7 +4,7 @@ import React from 'react';
 import OnboardingContainer from '@/components/onboarding/OnboardingContainer';
 import { motion } from 'framer-motion';
 
-export default function OnboardingPage() {
+export default function OnboardingPage({ searchParams }: { searchParams: { id?: string } }) {
     return (
         <div className="min-h-screen py-20 bg-[var(--background)]">
             <div className="container">

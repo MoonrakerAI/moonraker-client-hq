@@ -57,7 +57,7 @@ export default function OnboardingContainer({ practiceId }: { practiceId?: strin
             </div>
 
             {/* Step Content */}
-            <div className="min-h-[500px] p-10 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] backdrop-blur-xl shadow-2xl relative overflow-hidden">
+            <div className="min-h-[500px] p-10 rounded-3xl bg-[var(--card-bg)] border border-[var(--card-border)] backdrop-blur-xl shadow-2xl">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={currentStep}

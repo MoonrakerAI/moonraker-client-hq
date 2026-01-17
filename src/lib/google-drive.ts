@@ -3,7 +3,16 @@ import { Readable } from 'stream';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
-async function getDriveClient() {
+export const isDriveConfigured = Boolean(
+    process.env.GOOGLE_CLIENT_EMAIL &&
+    process.env.GOOGLE_PRIVATE_KEY &&
+    process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
+);
+
+export async function getDriveClient() {
+    if (!isDriveConfigured) {
+        throw new Error('Google Drive credentials or parent folder ID missing');
+    }
     const privateKey = (process.env.GOOGLE_PRIVATE_KEY || '')
         .split(/\\n/)
         .join('\n')
@@ -44,8 +53,15 @@ export async function createClientFolder(practiceName: string, clientEmail?: str
     });
 
     const rootFolderId = rootFolder.data.id;
-
     if (!rootFolderId) throw new Error('Failed to create root folder');
+
+    // Apply color via update (more reliable for some folder properties)
+    await drive.files.update({
+        fileId: rootFolderId,
+        requestBody: {
+            folderColorRgb: '#72d572', // Sea Foam
+        }
+    });
 
     // 2. Create Sub-folders
     const subfolders = [
@@ -68,8 +84,16 @@ export async function createClientFolder(practiceName: string, clientEmail?: str
             },
             fields: 'id',
         });
+
         if (subfolder.data.id) {
             subfolderIds[name] = subfolder.data.id;
+            // Apply color to subfolder as well
+            await drive.files.update({
+                fileId: subfolder.data.id,
+                requestBody: {
+                    folderColorRgb: '#72d572', // Sea Foam
+                }
+            });
         }
     }
 
