@@ -32,6 +32,21 @@ const statusColors = {
     'Done': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
 };
 
+// Row border and background colors for prominent status display
+const rowStatusStyles = {
+    'Open': 'border-l-slate-500/50 bg-slate-500/5 hover:bg-slate-500/10',
+    'Doing': 'border-l-blue-400 bg-blue-400/5 hover:bg-blue-400/10',
+    'Waiting on Client': 'border-l-amber-400 bg-amber-400/5 hover:bg-amber-400/10',
+    'Done': 'border-l-emerald-400 bg-emerald-400/5 hover:bg-emerald-400/10',
+};
+
+const checkboxColors = {
+    'Open': 'border-slate-600 text-slate-600',
+    'Doing': 'border-blue-400 text-blue-400 bg-blue-400/20',
+    'Waiting on Client': 'border-amber-400 text-amber-400 bg-amber-400/20',
+    'Done': 'border-emerald-400 text-emerald-400 bg-emerald-400',
+};
+
 interface TaskBoardProps {
     tasks: Task[];
     isAdmin?: boolean;
@@ -101,10 +116,10 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
                                             onClick={() => handleTaskClick(task)}
-                                            className="group flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/[0.08] transition-all cursor-pointer"
+                                            className={`group flex items-center justify-between p-5 rounded-2xl border-l-4 border border-white/5 transition-all cursor-pointer ${rowStatusStyles[task.status]}`}
                                         >
                                             <div className="flex items-center gap-4 flex-1">
-                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${task.status === 'Done' ? 'bg-[var(--primary)] border-[var(--primary)] text-black' : 'border-slate-700 text-slate-700'}`}>
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${checkboxColors[task.status]} ${task.status === 'Done' ? 'text-black' : ''}`}>
                                                     {task.status === 'Done' ? <CheckCircle2 size={14} /> : <Circle size={14} />}
                                                 </div>
                                                 <div className="space-y-1">
