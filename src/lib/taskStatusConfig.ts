@@ -23,13 +23,13 @@ export const rowStatusStyles: Record<TaskStatus, string> = {
     'Done': 'border-l-emerald-400 bg-emerald-400/5 hover:bg-emerald-400/10',
 };
 
-// Solid dot/checkbox colors - all filled with the status color
+// Solid dot colors - plain filled circles
 export const statusDotColors: Record<TaskStatus, string> = {
-    'Open': 'bg-slate-500 border-slate-500 text-white',
-    'Doing': 'bg-blue-400 border-blue-400 text-white',
-    'Internal Review': 'bg-orange-400 border-orange-400 text-white',
-    'Waiting on Client': 'bg-amber-400 border-amber-400 text-black',
-    'Done': 'bg-emerald-400 border-emerald-400 text-black',
+    'Open': 'bg-slate-500',
+    'Doing': 'bg-blue-400',
+    'Internal Review': 'bg-orange-400',
+    'Waiting on Client': 'bg-amber-400',
+    'Done': 'bg-emerald-400',
 };
 
 // Status icons for modal selector

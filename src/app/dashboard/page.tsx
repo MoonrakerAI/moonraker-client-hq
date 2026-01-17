@@ -8,7 +8,7 @@ import {
     CheckCircle2,
     TrendingUp,
     ArrowUpRight,
-    Search
+    ChevronRight
 } from 'lucide-react';
 import AIInsightCard from '@/components/ui/AIInsightCard';
 import DatabaseAlert from '@/components/ui/DatabaseAlert';
@@ -21,6 +21,38 @@ const stats = [
     { name: 'Completed Tasks', value: '1,284', icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
     { name: 'Avg. Visibility Increase', value: '+22%', icon: TrendingUp, color: 'text-purple-400', bg: 'bg-purple-400/10' },
 ];
+
+// Sample urgent tasks with status
+const urgentTasks = [
+    { id: 1, name: 'Complete Landing Page Schema', practice: 'Albuquerque Family Counseling', status: 'Waiting on Client' as const },
+    { id: 2, name: 'Optimize GBP Service Categories', practice: 'Bay Area Therapy', status: 'Internal Review' as const },
+    { id: 3, name: 'Fix MX/DKIM Records', practice: 'Desert Rose Counseling', status: 'Doing' as const },
+];
+
+// Status colors matching the shared config
+const statusDotColors = {
+    'Open': 'bg-slate-500',
+    'Doing': 'bg-blue-400',
+    'Internal Review': 'bg-orange-400',
+    'Waiting on Client': 'bg-amber-400',
+    'Done': 'bg-emerald-400',
+};
+
+const rowStatusStyles = {
+    'Open': 'border-l-slate-500/50 bg-slate-500/5 hover:bg-slate-500/10',
+    'Doing': 'border-l-blue-400 bg-blue-400/5 hover:bg-blue-400/10',
+    'Internal Review': 'border-l-orange-400 bg-orange-400/5 hover:bg-orange-400/10',
+    'Waiting on Client': 'border-l-amber-400 bg-amber-400/5 hover:bg-amber-400/10',
+    'Done': 'border-l-emerald-400 bg-emerald-400/5 hover:bg-emerald-400/10',
+};
+
+const statusBadgeColors = {
+    'Open': 'text-slate-500 bg-slate-500/10 border-slate-500/20',
+    'Doing': 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+    'Internal Review': 'text-orange-400 bg-orange-400/10 border-orange-400/20',
+    'Waiting on Client': 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+    'Done': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+};
 
 export default function Dashboard() {
     return (
@@ -66,20 +98,25 @@ export default function Dashboard() {
                         <Link href="/tasks" className="text-sm font-bold text-[var(--primary)] hover:underline underline-offset-4 tracking-tight">View Full Board</Link>
                     </div>
 
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((item) => (
-                            <div key={item} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/[0.08] transition-all cursor-pointer group">
-                                <div className="w-10 h-10 rounded-lg bg-red-400/10 text-red-400 flex items-center justify-center border border-red-400/20 group-hover:scale-105 transition-transform">
-                                    <Clock size={20} />
-                                </div>
+                    <div className="space-y-3">
+                        {urgentTasks.map((task) => (
+                            <Link
+                                key={task.id}
+                                href="/tasks"
+                                className={`flex items-center gap-4 p-4 rounded-xl border-l-4 border border-white/5 transition-all cursor-pointer group ${rowStatusStyles[task.status]}`}
+                            >
+                                <div className={`w-4 h-4 rounded-full ${statusDotColors[task.status]}`} />
                                 <div className="flex-1">
-                                    <h4 className="font-bold text-white group-hover:text-[var(--primary)] transition-colors">Complete Landing Page Schema</h4>
-                                    <p className="text-sm text-slate-500 font-medium">Practice: Albuquerque Family Counseling</p>
+                                    <h4 className="font-bold text-white group-hover:text-[var(--primary)] transition-colors">{task.name}</h4>
+                                    <p className="text-sm text-slate-500 font-medium">Practice: {task.practice}</p>
                                 </div>
-                                <div className="text-right">
-                                    <span className="px-3 py-1 rounded-full bg-red-400/10 text-red-400 text-xs font-bold border border-red-400/20">High Priority</span>
+                                <div className="flex items-center gap-3">
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadgeColors[task.status]}`}>
+                                        {task.status}
+                                    </span>
+                                    <ChevronRight size={18} className="text-slate-600 group-hover:text-[var(--primary)]" />
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>

@@ -3,13 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-    CheckCircle2,
-    Circle,
-    Clock,
-    AlertCircle,
-    Eye,
     ExternalLink,
-    MoreHorizontal,
     ChevronRight
 } from 'lucide-react';
 import TaskDetailModal from './TaskDetailModal';
@@ -61,17 +55,6 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
         setSelectedTask(null);
     };
 
-    // Get the appropriate icon for task status
-    const getStatusIcon = (status: TaskStatus) => {
-        switch (status) {
-            case 'Done': return <CheckCircle2 size={14} />;
-            case 'Doing': return <Clock size={14} />;
-            case 'Internal Review': return <Eye size={14} />;
-            case 'Waiting on Client': return <AlertCircle size={14} />;
-            default: return <Circle size={14} />;
-        }
-    };
-
     return (
         <>
             <div className="space-y-10">
@@ -115,9 +98,7 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
                                             className={`group flex items-center justify-between p-5 rounded-2xl border-l-4 border border-white/5 transition-all cursor-pointer ${rowStatusStyles[task.status] || rowStatusStyles['Open']}`}
                                         >
                                             <div className="flex items-center gap-4 flex-1">
-                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${statusDotColors[task.status] || statusDotColors['Open']}`}>
-                                                    {getStatusIcon(task.status)}
-                                                </div>
+                                                <div className={`w-4 h-4 rounded-full ${statusDotColors[task.status] || statusDotColors['Open']}`} />
                                                 <div className="space-y-1">
                                                     <h4 className="font-bold text-white group-hover:text-[var(--primary)] transition-colors">{task.name}</h4>
                                                     <div className="flex items-center gap-3">
