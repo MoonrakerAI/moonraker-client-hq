@@ -2,7 +2,7 @@
 
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-export type TaskStatus = 'Open' | 'Doing' | 'Waiting on Client' | 'Done';
+export type TaskStatus = 'Open' | 'Doing' | 'Internal Review' | 'Waiting on Client' | 'Done';
 
 export async function getPracticeTasks(practiceId: string) {
     if (!isSupabaseConfigured) return [];

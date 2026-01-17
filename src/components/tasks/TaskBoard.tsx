@@ -7,16 +7,23 @@ import {
     Circle,
     Clock,
     AlertCircle,
+    Eye,
     ExternalLink,
     MoreHorizontal,
     ChevronRight
 } from 'lucide-react';
 import TaskDetailModal from './TaskDetailModal';
+import {
+    TaskStatus,
+    statusBadgeColors,
+    rowStatusStyles,
+    statusDotColors
+} from '@/lib/taskStatusConfig';
 
 interface Task {
     id: string;
     name: string;
-    status: 'Open' | 'Doing' | 'Waiting on Client' | 'Done';
+    status: TaskStatus;
     category: string;
     stage: string;
     display_order: number;
@@ -25,32 +32,10 @@ interface Task {
     practice_name?: string;
 }
 
-const statusColors = {
-    'Open': 'text-slate-500 bg-slate-500/10 border-slate-500/20',
-    'Doing': 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-    'Waiting on Client': 'text-amber-400 bg-amber-400/10 border-amber-400/20',
-    'Done': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
-};
-
-// Row border and background colors for prominent status display
-const rowStatusStyles = {
-    'Open': 'border-l-slate-500/50 bg-slate-500/5 hover:bg-slate-500/10',
-    'Doing': 'border-l-blue-400 bg-blue-400/5 hover:bg-blue-400/10',
-    'Waiting on Client': 'border-l-amber-400 bg-amber-400/5 hover:bg-amber-400/10',
-    'Done': 'border-l-emerald-400 bg-emerald-400/5 hover:bg-emerald-400/10',
-};
-
-const checkboxColors = {
-    'Open': 'border-slate-600 text-slate-600',
-    'Doing': 'border-blue-400 text-blue-400 bg-blue-400/20',
-    'Waiting on Client': 'border-amber-400 text-amber-400 bg-amber-400/20',
-    'Done': 'border-emerald-400 text-emerald-400 bg-emerald-400',
-};
-
 interface TaskBoardProps {
     tasks: Task[];
     isAdmin?: boolean;
-    onUpdateTask?: (taskId: string, status: Task['status'], notes?: string) => Promise<void>;
+    onUpdateTask?: (taskId: string, status: TaskStatus, notes?: string) => Promise<void>;
 }
 
 export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: TaskBoardProps) {
@@ -76,12 +61,23 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
         setSelectedTask(null);
     };
 
+    // Get the appropriate icon for task status
+    const getStatusIcon = (status: TaskStatus) => {
+        switch (status) {
+            case 'Done': return <CheckCircle2 size={14} />;
+            case 'Doing': return <Clock size={14} />;
+            case 'Internal Review': return <Eye size={14} />;
+            case 'Waiting on Client': return <AlertCircle size={14} />;
+            default: return <Circle size={14} />;
+        }
+    };
+
     return (
         <>
             <div className="space-y-10">
                 <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                    <div className="flex items-center gap-2">
-                        {['All', 'Open', 'Doing', 'Waiting on Client', 'Done'].map(s => (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {['All', 'Open', 'Doing', 'Internal Review', 'Waiting on Client', 'Done'].map(s => (
                             <button
                                 key={s}
                                 onClick={() => setFilter(s)}
@@ -116,11 +112,11 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
                                             onClick={() => handleTaskClick(task)}
-                                            className={`group flex items-center justify-between p-5 rounded-2xl border-l-4 border border-white/5 transition-all cursor-pointer ${rowStatusStyles[task.status]}`}
+                                            className={`group flex items-center justify-between p-5 rounded-2xl border-l-4 border border-white/5 transition-all cursor-pointer ${rowStatusStyles[task.status] || rowStatusStyles['Open']}`}
                                         >
                                             <div className="flex items-center gap-4 flex-1">
-                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${checkboxColors[task.status]} ${task.status === 'Done' ? 'text-black' : ''}`}>
-                                                    {task.status === 'Done' ? <CheckCircle2 size={14} /> : <Circle size={14} />}
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${statusDotColors[task.status] || statusDotColors['Open']}`}>
+                                                    {getStatusIcon(task.status)}
                                                 </div>
                                                 <div className="space-y-1">
                                                     <h4 className="font-bold text-white group-hover:text-[var(--primary)] transition-colors">{task.name}</h4>
@@ -131,7 +127,7 @@ export default function TaskBoard({ tasks, isAdmin = false, onUpdateTask }: Task
                                                             </span>
                                                         )}
                                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{task.category}</span>
-                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusColors[task.status]}`}>
+                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadgeColors[task.status] || statusBadgeColors['Open']}`}>
                                                             {task.status}
                                                         </span>
                                                     </div>

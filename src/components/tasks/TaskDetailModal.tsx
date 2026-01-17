@@ -8,15 +8,21 @@ import {
     Circle,
     Clock,
     AlertCircle,
+    Eye,
     ExternalLink,
     FileText,
     Save
 } from 'lucide-react';
+import {
+    TaskStatus,
+    statusOptions,
+    statusBadgeColors
+} from '@/lib/taskStatusConfig';
 
 interface Task {
     id: string;
     name: string;
-    status: 'Open' | 'Doing' | 'Waiting on Client' | 'Done';
+    status: TaskStatus;
     category: string;
     stage: string;
     display_order: number;
@@ -29,27 +35,19 @@ interface TaskDetailModalProps {
     task: Task | null;
     isOpen: boolean;
     onClose: () => void;
-    onUpdateStatus?: (taskId: string, status: Task['status'], notes?: string) => Promise<void>;
+    onUpdateStatus?: (taskId: string, status: TaskStatus, notes?: string) => Promise<void>;
 }
 
-const statusOptions: Task['status'][] = ['Open', 'Doing', 'Waiting on Client', 'Done'];
-
-const statusColors: Record<Task['status'], string> = {
-    'Open': 'text-slate-500 bg-slate-500/10 border-slate-500/30',
-    'Doing': 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-    'Waiting on Client': 'text-amber-400 bg-amber-400/10 border-amber-400/30',
-    'Done': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
-};
-
-const statusIcons: Record<Task['status'], React.ReactNode> = {
+const statusIcons: Record<TaskStatus, React.ReactNode> = {
     'Open': <Circle size={16} />,
     'Doing': <Clock size={16} />,
+    'Internal Review': <Eye size={16} />,
     'Waiting on Client': <AlertCircle size={16} />,
     'Done': <CheckCircle2 size={16} />,
 };
 
 export default function TaskDetailModal({ task, isOpen, onClose, onUpdateStatus }: TaskDetailModalProps) {
-    const [selectedStatus, setSelectedStatus] = useState<Task['status']>(task?.status || 'Open');
+    const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(task?.status || 'Open');
     const [notes, setNotes] = useState(task?.notes || '');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -133,8 +131,8 @@ export default function TaskDetailModal({ task, isOpen, onClose, onUpdateStatus 
                                                 key={status}
                                                 onClick={() => setSelectedStatus(status)}
                                                 className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-all ${selectedStatus === status
-                                                    ? statusColors[status]
-                                                    : 'border-white/10 text-slate-500 hover:border-white/20 hover:text-slate-300'
+                                                        ? statusBadgeColors[status]
+                                                        : 'border-white/10 text-slate-500 hover:border-white/20 hover:text-slate-300'
                                                     }`}
                                             >
                                                 {statusIcons[status]}
