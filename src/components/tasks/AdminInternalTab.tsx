@@ -59,10 +59,10 @@ export default function AdminInternalTab({ practice, onboarding, insights }: { p
             <div className="p-8 rounded-3xl bg-white/5 border border-white/5 space-y-6 h-fit">
                 <h3 className="text-xl font-bold font-heading border-b border-white/5 pb-4">Onboarding Metadata</h3>
                 <div className="space-y-4">
-                    <MetadataItem label="Gmail Account" value={practice.email || 'N/A'} />
+                    <MetadataItem label="Gmail Account" value={practice?.email || 'N/A'} />
                     <MetadataItem label="Backup Password" value="********" isSensitive />
                     <MetadataItem label="2FA Secret" value="********" isSensitive />
-                    <MetadataItem label="Drive Link" value={onboarding.google_drive_link || 'Pending provisioning'} />
+                    <MetadataItem label="Drive Link" value={onboarding?.google_drive_link || 'Pending provisioning'} />
                 </div>
 
                 <div className="pt-4">
